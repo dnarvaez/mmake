@@ -46,10 +46,12 @@ def build(base_dir, modules):
 
     for module_name, module_info in modules.items():
         source_dir = os.path.join(base_dir, module_name)
-        install_dir = os.path.join(base_dir, "build", "install", module_name)
+        install_dir = os.path.join(base_dir, "build", "install")
 
         recipe_path = os.path.join(base_dir, module_info["build"])
         stamp_path = os.path.join(stamps_dir, module_name)
+
+        os.environ["INSTALL_DIR"] = install_dir
 
         try:
             with open(stamp_path) as f:
@@ -60,7 +62,6 @@ def build(base_dir, modules):
         new_stamp = sourcestamp.compute(source_dir)
         if old_stamp != new_stamp:
             os.environ["SOURCE_DIR"] = source_dir
-            os.environ["INSTALL_DIR"] = install_dir
 
             os.chdir(source_dir)
             subprocess.check_call(["sh", recipe_path])
