@@ -39,19 +39,35 @@ def clean(base_dir, modules):
 
 def build(base_dir, modules):
     stamps_dir = os.path.join(base_dir, "build", "stamps")
+
     try:
         os.mkdir(stamps_dir)
     except OSError:
         pass
 
+    install_dir = os.path.join(base_dir, "build", "install")
+    lib_dir = os.path.join(install_dir, "lib")
+    share_dir = os.path.join(install_dir, "share")
+
+    pkgconfig_dirs = [os.path.join(share_dir, "pkgconfig"),
+                      os.path.join(lib_dir, "pkgconfig")]
+
+    aclocal_dir = os.path.join(share_dir, "aclocal")
+
+    try:
+        os.makedirs(aclocal_dir)
+    except OSError:
+        pass
+
+    os.environ["INSTALL_DIR"] = install_dir
+    os.environ["LD_LIBRARY_PATH"] = lib_dir
+    os.environ["PKG_CONFIG_PATH"] = ":".join(pkgconfig_dirs)
+    os.environ["ACLOCAL"] = "aclocal -I %s" % aclocal_dir
+
     for module_name, module_info in modules.items():
         source_dir = os.path.join(base_dir, module_name)
-        install_dir = os.path.join(base_dir, "build", "install")
-
         recipe_path = os.path.join(base_dir, module_info["build"])
         stamp_path = os.path.join(stamps_dir, module_name)
-
-        os.environ["INSTALL_DIR"] = install_dir
 
         try:
             with open(stamp_path) as f:
