@@ -37,6 +37,30 @@ def clean(base_dir, modules):
         subprocess.check_call("git clean -fdx", shell=True)
 
 
+def resolve_deps(modules):
+    sorted_nodes = []
+
+    graph_unsorted = {}
+    for name, info in modules.items():
+        graph_unsorted[name] = info.get("deps", [])
+
+    while graph_unsorted:
+        acyclic = False
+        for node, edges in graph_unsorted.items():
+            for edge in edges:
+                if edge in graph_unsorted:
+                    break
+            else:
+                acyclic = True
+                del graph_unsorted[node]
+                sorted_nodes.append(node)
+
+        if not acyclic:
+            raise RuntimeError("A cyclic dependency occurred")
+
+    return sorted_nodes
+
+
 def build(base_dir, modules):
     stamps_dir = os.path.join(base_dir, "build", "stamps")
 
@@ -64,7 +88,9 @@ def build(base_dir, modules):
     os.environ["PKG_CONFIG_PATH"] = ":".join(pkgconfig_dirs)
     os.environ["ACLOCAL"] = "aclocal -I %s" % aclocal_dir
 
-    for module_name, module_info in modules.items():
+    for module_name in resolve_deps(modules):
+        module_info = modules[module_name]
+
         source_dir = os.path.join(base_dir, module_name)
         recipe_path = os.path.join(base_dir, module_info["build"])
         stamp_path = os.path.join(stamps_dir, module_name)
