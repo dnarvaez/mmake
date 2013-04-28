@@ -14,11 +14,11 @@
 # limitations under the License.
 
 import argparse
-import json
 import os
 import subprocess
 
 from mmake import sourcestamp
+from mmake import manifest
 
 
 def pull(base_dir, modules):
@@ -115,8 +115,7 @@ def build(base_dir, modules):
 def run():
     base_dir = os.getcwd()
 
-    with open(os.path.join(base_dir, "manifest.json")) as f:
-        modules = json.load(f)
+    modules = manifest.load(base_dir)
 
     parser = argparse.ArgumentParser()
     subparsers = parser.add_subparsers(dest="command")
@@ -124,6 +123,7 @@ def run():
     subparsers.add_parser("build")
     subparsers.add_parser("pull")
     subparsers.add_parser("clean")
+    subparsers.add_parser("manifest-format")
 
     args = parser.parse_args()
     if args.command == "build":
@@ -132,3 +132,5 @@ def run():
         clean(base_dir, modules)
     elif args.command == "pull":
         pull(base_dir, modules)
+    elif args.command == "manifest-format":
+        manifest.format_json(base_dir)
