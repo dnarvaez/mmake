@@ -83,12 +83,15 @@ def build(config):
                       os.path.join(lib_dir, "pkgconfig")]
 
     aclocal_dir = os.path.join(share_dir, "aclocal")
+    build_dir = config["build_dir"]
 
-    try:
-        os.makedirs(aclocal_dir)
-    except OSError:
-        pass
+    for dir_to_make in aclocal_dir, build_dir:
+        try:
+            os.makedirs(dir_to_make)
+        except OSError:
+            pass
 
+    os.environ["BUILD_DIR"] = build_dir
     os.environ["INSTALL_DIR"] = install_dir
     os.environ["LD_LIBRARY_PATH"] = lib_dir
     os.environ["PKG_CONFIG_PATH"] = ":".join(pkgconfig_dirs)
