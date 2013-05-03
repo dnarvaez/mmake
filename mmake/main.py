@@ -66,16 +66,15 @@ def resolve_deps(modules):
 
 def build(config):
     base_dir = config["base_dir"]
+    install_dir = config["install_dir"]
+    stamps_dir = config["stamps_dir"]
     modules = config["modules"]
-
-    stamps_dir = os.path.join(base_dir, "build", "stamps")
 
     try:
         os.mkdir(stamps_dir)
     except OSError:
         pass
 
-    install_dir = os.path.join(base_dir, "build", "install")
     lib_dir = os.path.join(install_dir, "lib")
     share_dir = os.path.join(install_dir, "share")
 
