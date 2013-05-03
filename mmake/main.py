@@ -83,15 +83,12 @@ def build(config):
                       os.path.join(lib_dir, "pkgconfig")]
 
     aclocal_dir = os.path.join(share_dir, "aclocal")
-    build_dir = config["build_dir"]
 
-    for dir_to_make in aclocal_dir, build_dir:
-        try:
-            os.makedirs(dir_to_make)
-        except OSError:
-            pass
+    try:
+        os.makedirs(aclocal_dir)
+    except OSError:
+        pass
 
-    os.environ["BUILD_DIR"] = build_dir
     os.environ["INSTALL_DIR"] = install_dir
     os.environ["LD_LIBRARY_PATH"] = lib_dir
     os.environ["PKG_CONFIG_PATH"] = ":".join(pkgconfig_dirs)
@@ -104,8 +101,14 @@ def build(config):
         module_info = modules[module_name]
 
         source_dir = os.path.join(base_dir, module_name)
+        build_dir = os.path.join(config["build_dir"], module_name)
         recipe_path = os.path.join(base_dir, module_info["recipe"])
         stamp_path = os.path.join(stamps_dir, module_name)
+
+        try:
+            os.makedirs(build_dir)
+        except OSError:
+            pass
 
         try:
             with open(stamp_path) as f:
@@ -116,6 +119,7 @@ def build(config):
         new_stamp = sourcestamp.compute(source_dir)
         if old_stamp != new_stamp:
             os.environ["SOURCE_DIR"] = source_dir
+            os.environ["BUILD_DIR"] = build_dir
             subprocess.check_call(["sh", recipe_path])
 
         with open(stamp_path, "w") as f:
