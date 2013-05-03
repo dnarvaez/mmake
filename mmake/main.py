@@ -123,7 +123,7 @@ def build(config):
 def run():
     base_dir = os.getcwd()
 
-    with open(os.path.join(base_dir, "manifest.json")) as f:
+    with open(os.path.join(base_dir, "mmake.json")) as f:
         config = json.load(f)
 
     config["base_dir"] = base_dir
