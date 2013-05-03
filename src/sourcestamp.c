@@ -27,6 +27,9 @@ list_dir(const char *dir, time_t *mtime, int *n_files)
     struct stat statbuf;
 
     dp = opendir(dir);
+    if (dp == NULL) {
+        return;
+    }
 
     chdir(dir);
 
