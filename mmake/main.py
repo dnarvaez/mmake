@@ -93,8 +93,6 @@ def build(config):
     os.environ["PKG_CONFIG_PATH"] = ":".join(pkgconfig_dirs)
     os.environ["ACLOCAL"] = "aclocal -I %s" % aclocal_dir
     os.environ["MAKEFLAGS"] = "-j %s" % multiprocessing.cpu_count() * 2
-    os.environ["CC"] = "ccache gcc"
-    os.environ["CXX"] = "ccache g++"
 
     for module_name in resolve_deps(modules):
         module_info = modules[module_name]
