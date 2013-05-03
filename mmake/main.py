@@ -22,18 +22,20 @@ import subprocess
 from mmake import sourcestamp
 
 
-def pull(base_dir, modules):
-    for module_name in modules.keys():
-        os.chdir(base_dir)
+def pull(config):
+    for module_name in config["modules"].keys():
+        os.chdir(config["base_dir"])
         subprocess.check_call("git submodule update --init %s" % module_name,
                               shell=True)
 
 
-def clean(base_dir, modules):
+def clean(config):
+    base_dir = config["base_dir"]
+
     os.chdir(base_dir)
     subprocess.check_call("git clean -fdx", shell=True)
 
-    for module_name in modules.keys():
+    for module_name in config["modules"].keys():
         os.chdir(os.path.join(base_dir, module_name))
         subprocess.check_call("git clean -fdx", shell=True)
 
@@ -62,7 +64,10 @@ def resolve_deps(modules):
     return sorted_nodes
 
 
-def build(base_dir, modules):
+def build(config):
+    base_dir = config["base_dir"]
+    modules = config["modules"]
+
     stamps_dir = os.path.join(base_dir, "build", "stamps")
 
     try:
@@ -85,6 +90,7 @@ def build(base_dir, modules):
         pass
 
     os.environ["INSTALL_DIR"] = install_dir
+    os.environ["SOURCE_DIR"] = source_dir
     os.environ["LD_LIBRARY_PATH"] = lib_dir
     os.environ["PKG_CONFIG_PATH"] = ":".join(pkgconfig_dirs)
     os.environ["ACLOCAL"] = "aclocal -I %s" % aclocal_dir
@@ -108,8 +114,6 @@ def build(base_dir, modules):
         new_stamp = sourcestamp.compute(source_dir)
         if old_stamp != new_stamp:
             os.environ["SOURCE_DIR"] = source_dir
-
-            os.chdir(source_dir)
             subprocess.check_call(["sh", recipe_path])
 
         with open(stamp_path, "w") as f:
@@ -120,7 +124,9 @@ def run():
     base_dir = os.getcwd()
 
     with open(os.path.join(base_dir, "manifest.json")) as f:
-        modules = json.load(f)
+        config = json.load(f)
+
+    config["base_dir"] = base_dir
 
     parser = argparse.ArgumentParser()
     subparsers = parser.add_subparsers(dest="command")
@@ -131,8 +137,8 @@ def run():
 
     args = parser.parse_args()
     if args.command == "build":
-        build(base_dir, modules)
+        build(config)
     elif args.command == "clean":
-        clean(base_dir, modules)
+        clean(config)
     elif args.command == "pull":
-        pull(base_dir, modules)
+        pull(config)
