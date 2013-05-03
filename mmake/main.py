@@ -101,7 +101,7 @@ def build(config):
         module_info = modules[module_name]
 
         source_dir = os.path.join(base_dir, module_name)
-        recipe_path = os.path.join(base_dir, module_info["build"])
+        recipe_path = os.path.join(base_dir, module_info["recipe"])
         stamp_path = os.path.join(stamps_dir, module_name)
 
         try:
