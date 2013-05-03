@@ -74,6 +74,7 @@ def build(config):
     except OSError:
         pass
 
+    bin_dir = os.path.join(install_dir, "bin")
     lib_dir = os.path.join(install_dir, "lib")
     share_dir = os.path.join(install_dir, "share")
 
@@ -91,6 +92,7 @@ def build(config):
     os.environ["LD_LIBRARY_PATH"] = lib_dir
     os.environ["PKG_CONFIG_PATH"] = ":".join(pkgconfig_dirs)
     os.environ["ACLOCAL_FLAGS"] = "-I %s" % aclocal_dir
+    os.environ["PATH"] = os.path.expandvars("%s:$PATH" % bin_dir)
 
     for module_name in resolve_deps(modules):
         module_info = modules[module_name]
