@@ -98,14 +98,8 @@ def build(config):
         module_info = modules[module_name]
 
         source_dir = os.path.join(base_dir, module_name)
-        build_dir = os.path.join(config["build_dir"], module_name)
         recipe_path = os.path.join(base_dir, module_info["recipe"])
         stamp_path = os.path.join(stamps_dir, module_name)
-
-        try:
-            os.makedirs(build_dir)
-        except OSError:
-            pass
 
         try:
             with open(stamp_path) as f:
@@ -116,7 +110,6 @@ def build(config):
         new_stamp = sourcestamp.compute(source_dir)
         if old_stamp != new_stamp:
             os.environ["SOURCE_DIR"] = source_dir
-            os.environ["BUILD_DIR"] = build_dir
             subprocess.check_call(["sh", recipe_path])
 
         with open(stamp_path, "w") as f:
