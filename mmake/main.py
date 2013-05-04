@@ -70,11 +70,6 @@ def build(config):
     stamps_dir = os.path.join(base_dir, config["stamps_dir"])
     modules = config["modules"]
 
-    try:
-        os.mkdir(stamps_dir)
-    except OSError:
-        pass
-
     bin_dir = os.path.join(install_dir, "bin")
     lib_dir = os.path.join(install_dir, "lib")
     share_dir = os.path.join(install_dir, "share")
@@ -84,10 +79,11 @@ def build(config):
 
     aclocal_dir = os.path.join(share_dir, "aclocal")
 
-    try:
-        os.makedirs(aclocal_dir)
-    except OSError:
-        pass
+    for to_create in stamps_dir, aclocal_dir:
+        try:
+            os.makedirs(aclocal_dir)
+        except OSError:
+            pass
 
     os.environ["INSTALL_DIR"] = install_dir
     os.environ["LD_LIBRARY_PATH"] = lib_dir
