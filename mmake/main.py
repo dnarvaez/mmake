@@ -65,8 +65,8 @@ def resolve_deps(modules):
 
 def build(config):
     base_dir = config["base_dir"]
-    install_dir = config["install_dir"]
-    stamps_dir = config["stamps_dir"]
+    install_dir = os.path.join(base_dir, config["install_dir"])
+    stamps_dir = os.path.join(base_dir, config["stamps_dir"])
     modules = config["modules"]
 
     try:
