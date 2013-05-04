@@ -17,6 +17,7 @@ import argparse
 import json
 import os
 import subprocess
+import multiprocessing
 
 from mmake import sourcestamp
 
@@ -93,6 +94,9 @@ def build(config):
     os.environ["PKG_CONFIG_PATH"] = ":".join(pkgconfig_dirs)
     os.environ["ACLOCAL_FLAGS"] = "-I %s" % aclocal_dir
     os.environ["PATH"] = os.path.expandvars("%s:$PATH" % bin_dir)
+    os.environ["MAKEFLAGS"] = "-j %s" % multiprocessing.cpu_count()
+    os.environ["CC"] = "ccache gcc"
+    os.environ["CXX"] = "ccache g++"
 
     for module_name in resolve_deps(modules):
         module_info = modules[module_name]
